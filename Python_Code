@@ -1,0 +1,50 @@
+import os
+import torch
+import torchvision
+import tarfile
+import jovian
+import pandas as pd
+from torchvision.datasets.utils import download_url
+from torch.utils.data import random_split
+import matplotlib.pyplot as plt
+import seaborn as sns
+# show all the column
+pd.set_option("display.max_columns", None)
+# Load data
+train_df =pd.read_csv("/Users/Hugo/Desktop/Kaggle Titanic/train.csv")
+test_df=pd.read_csv("/Users/Hugo/Desktop/Kaggle Titanic/test.csv")
+#Dropping Cabin column - non useable data
+train_df = train_df.drop('Cabin',1)
+test_df = test_df.drop('Cabin',1)
+#count # of NA
+print(train_df.isnull().sum(axis = 0))
+#Check what are the unique value in column Embarked
+print(train_df['Embarked'].value_counts())
+#Calculate the age mean of the train data
+age_mean_train = train_df["Age"].mean()
+age_mean_test = test_df["Age"].mean()
+# replace Nan in Age with average
+train_df['Age'].fillna(value=train_df['Age'].mean(), inplace=True)
+test_df['Age'].fillna(value=test_df['Age'].mean(), inplace=True)
+# replace Nan in Embarked with most frequent letter 'S'
+train_df['Embarked'].fillna(value='S', inplace=True)
+test_df['Embarked'].fillna(value='S', inplace=True)
+#Count NA again but this time all Nan should be 0
+print(train_df.isnull().sum(axis = 0))
+#replacing alphabetic sex into numeric for correlation comparison
+train_df['Sex'].replace({'female':1,'male':0},inplace = True)
+test_df['Sex'].replace({'female':1,'male':0},inplace = True)
+#replacing alphabetic Embarked into numeric for correlation comparison
+train_df['Embarked'].replace({'S':1,'C':2,'Q':3},inplace = True)
+test_df['Embarked'].replace({'S':1,'C':2,'Q':3},inplace = True)
+
+# Size of the graph
+plt.figure(figsize=(16,6))
+# y axis Max is 1 Min is -1 and annot is true (meaning to show actual correlation value)
+sns.heatmap(train_df.corr(), vmin=-1,vmax=1,annot = False)
+# see which variable has highest correlation with survival
+plt.show()
+
+
+
+
